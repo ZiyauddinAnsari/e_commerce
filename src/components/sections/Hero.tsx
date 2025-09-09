@@ -4,8 +4,19 @@ import { motion } from "framer-motion";
 import { ShoppingBag, Star, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect } from "react";
+import { preloadProducts } from "@/data/products";
 
 export default function Hero() {
+  // Preload products when component mounts to improve "Shop Now" performance
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      preloadProducts();
+    }, 1000); // Delay to not interfere with initial page load
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Animated background */}
@@ -72,7 +83,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <Link href="/products">
+            <Link href="/products" prefetch={true}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -81,7 +92,7 @@ export default function Hero() {
                 Shop Now
               </motion.button>
             </Link>
-            <Link href="/categories">
+            <Link href="/categories" prefetch={true}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

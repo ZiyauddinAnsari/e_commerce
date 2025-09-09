@@ -11,7 +11,10 @@ interface ClientOnlyProps {
  * Component that only renders children on the client side
  * Prevents hydration mismatch issues with client-side storage
  */
-export default function ClientOnly({ children, fallback = null }: ClientOnlyProps) {
+export default function ClientOnly({
+  children,
+  fallback = null,
+}: ClientOnlyProps) {
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {

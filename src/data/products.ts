@@ -249,11 +249,33 @@ export const mockProducts: Product[] = [
 ];
 
 // API functions
-export const getProducts = async (filters?: any): Promise<Product[]> => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 500));
+// Cache for products to avoid repeated API calls
+let cachedProducts: Product[] | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-  let filteredProducts = [...mockProducts];
+export const getProducts = async (filters?: any): Promise<Product[]> => {
+  // Check if we have cached data that's still valid
+  const now = Date.now();
+  if (cachedProducts && (now - cacheTimestamp < CACHE_DURATION)) {
+    // Still use a short delay for UX consistency, but much shorter
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return applyFilters([...cachedProducts], filters);
+  }
+
+  // Simulate API delay (reduced from 500ms to 200ms)
+  await new Promise((resolve) => setTimeout(resolve, 200));
+
+  // Cache the products
+  cachedProducts = [...mockProducts];
+  cacheTimestamp = now;
+
+  return applyFilters([...mockProducts], filters);
+};
+
+// Helper function to apply filters
+function applyFilters(products: Product[], filters?: any): Product[] {
+  let filteredProducts = products;
 
   if (filters?.category) {
     filteredProducts = filteredProducts.filter(
@@ -277,6 +299,14 @@ export const getProducts = async (filters?: any): Promise<Product[]> => {
   }
 
   return filteredProducts;
+}
+
+// Pre-load products for better performance
+export const preloadProducts = () => {
+  if (typeof window !== 'undefined' && !cachedProducts) {
+    // Pre-load products in the background without showing loading state
+    getProducts().catch(console.error);
+  }
 };
 
 export const getProduct = async (id: string): Promise<Product | null> => {

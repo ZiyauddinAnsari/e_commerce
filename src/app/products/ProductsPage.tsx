@@ -10,7 +10,9 @@ import { Product } from "@/types";
 import ProductCard from "@/components/product/ProductCard";
 import ProductFilters from "@/components/product/ProductFilters";
 import Header from "@/components/layout/Header";
+import HeaderSkeleton from "@/components/layout/HeaderSkeleton";
 import Footer from "@/components/layout/Footer";
+import ClientOnly from "@/components/ClientOnly";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -39,7 +41,8 @@ export default function ProductsPage() {
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
-        setLoading(false);
+        // Add a small delay to prevent flash
+        setTimeout(() => setLoading(false), 100);
       }
     };
 
@@ -48,7 +51,9 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
-      <Header />
+      <ClientOnly fallback={<HeaderSkeleton />}>
+        <Header />
+      </ClientOnly>
 
       <main className="pt-20">
         {/* Page Header */}

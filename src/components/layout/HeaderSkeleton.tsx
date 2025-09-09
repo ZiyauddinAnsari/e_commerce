@@ -17,9 +17,14 @@ export default function HeaderSkeleton() {
 
           {/* Desktop Navigation skeleton */}
           <div className="hidden md:flex items-center space-x-8">
-            {['Home', 'Products', 'Categories', 'About', 'Contact'].map((item) => (
-              <div key={item} className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            ))}
+            {["Home", "Products", "Categories", "About", "Contact"].map(
+              (item) => (
+                <div
+                  key={item}
+                  className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"
+                />
+              )
+            )}
           </div>
 
           {/* Right side icons skeleton */}
