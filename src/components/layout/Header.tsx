@@ -20,12 +20,14 @@ import { useTheme } from "next-themes";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { useAuthStore } from "@/store/authStore";
+import { useHydration } from "@/hooks/useHydration";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { theme, setTheme } = useTheme();
+  const isHydrated = useHydration();
   const { itemCount, toggleCart } = useCartStore();
   const { itemCount: wishlistCount, toggleWishlist } = useWishlistStore();
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -102,7 +104,7 @@ export default function Header() {
               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative"
             >
               <Heart className="h-5 w-5 text-gray-700 dark:text-gray-200" />
-              {wishlistCount > 0 && (
+              {isHydrated && wishlistCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {wishlistCount}
                 </span>
@@ -117,7 +119,7 @@ export default function Header() {
               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative"
             >
               <ShoppingCart className="h-5 w-5 text-gray-700 dark:text-gray-200" />
-              {itemCount > 0 && (
+              {isHydrated && itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {itemCount}
                 </span>
@@ -125,7 +127,7 @@ export default function Header() {
             </motion.button>
 
             {/* User */}
-            {isAuthenticated && user ? (
+            {isHydrated && isAuthenticated && user ? (
               <div className="relative">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -184,7 +186,7 @@ export default function Header() {
                       >
                         <Heart className="h-4 w-4" />
                         <span>Wishlist</span>
-                        {wishlistCount > 0 && (
+                        {isHydrated && wishlistCount > 0 && (
                           <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">
                             {wishlistCount}
                           </span>
@@ -206,15 +208,17 @@ export default function Header() {
                 </AnimatePresence>
               </div>
             ) : (
-              <Link href="/auth">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <User className="h-5 w-5 text-gray-700 dark:text-gray-200" />
-                </motion.button>
-              </Link>
+              isHydrated && (
+                <Link href="/auth">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <User className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+                  </motion.button>
+                </Link>
+              )
             )}
 
             {/* Mobile menu button */}

@@ -823,6 +823,9 @@ video {
 .h-full {
   height: 100%;
 }
+.h-9 {
+  height: 2.25rem;
+}
 .max-h-48 {
   max-height: 12rem;
 }
@@ -885,6 +888,9 @@ video {
 }
 .w-full {
   width: 100%;
+}
+.w-9 {
+  width: 2.25rem;
 }
 .min-w-0 {
   min-width: 0px;
@@ -2345,6 +2351,10 @@ body {
 
 .dark\:bg-yellow-900\/30:is(.dark *) {
   background-color: rgb(113 63 18 / 0.3);
+}
+
+.dark\:bg-gray-900\/80:is(.dark *) {
+  background-color: rgb(17 24 39 / 0.8);
 }
 
 .dark\:from-gray-900:is(.dark *) {
