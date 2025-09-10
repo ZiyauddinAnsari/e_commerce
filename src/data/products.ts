@@ -257,7 +257,7 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 export const getProducts = async (filters?: any): Promise<Product[]> => {
   // Check if we have cached data that's still valid
   const now = Date.now();
-  if (cachedProducts && (now - cacheTimestamp < CACHE_DURATION)) {
+  if (cachedProducts && now - cacheTimestamp < CACHE_DURATION) {
     // Still use a short delay for UX consistency, but much shorter
     await new Promise((resolve) => setTimeout(resolve, 100));
     return applyFilters([...cachedProducts], filters);
@@ -303,7 +303,7 @@ function applyFilters(products: Product[], filters?: any): Product[] {
 
 // Pre-load products for better performance
 export const preloadProducts = () => {
-  if (typeof window !== 'undefined' && !cachedProducts) {
+  if (typeof window !== "undefined" && !cachedProducts) {
     // Pre-load products in the background without showing loading state
     getProducts().catch(console.error);
   }
