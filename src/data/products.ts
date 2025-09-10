@@ -4,7 +4,7 @@ import { Product } from "@/types";
 export const mockProducts: Product[] = [
   {
     id: "1",
-    name: "Premium Wireless Headphones",
+    name: "Premium Wireless Headphone",
     description:
       "Experience superior sound quality with our premium wireless headphones featuring active noise cancellation, 30-hour battery life, and premium materials.",
     price: 299.99,
