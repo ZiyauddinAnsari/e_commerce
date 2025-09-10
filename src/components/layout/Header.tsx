@@ -35,13 +35,13 @@ export default function Header() {
   const navigation = [
     { name: "Home", href: "/" },
     { name: "Products", href: "/products" },
-    { name: "Categories", href: "/categories" },
+    { name: "Categories", href: "/products" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
 
   return (
-    <header className="fixed top-0 w-full z-50 glass backdrop-blur-md border-b border-white/10">
+    <header className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/20 shadow-sm">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -63,7 +63,7 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium"
+                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
               >
                 {item.name}
               </Link>
@@ -77,9 +77,9 @@ export default function Header() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
-              <Search className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+              <Search className="h-5 w-5 text-gray-700" />
             </motion.button>
 
             {/* Theme toggle */}
@@ -87,12 +87,12 @@ export default function Header() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
               {theme === "dark" ? (
-                <Sun className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+                <Sun className="h-5 w-5 text-gray-700" />
               ) : (
-                <Moon className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+                <Moon className="h-5 w-5 text-gray-700" />
               )}
             </motion.button>
 
@@ -101,9 +101,9 @@ export default function Header() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={toggleWishlist}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative"
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors relative"
             >
-              <Heart className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+              <Heart className="h-5 w-5 text-gray-700" />
               {isHydrated && wishlistCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {wishlistCount}
@@ -116,9 +116,9 @@ export default function Header() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={toggleCart}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative"
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors relative"
             >
-              <ShoppingCart className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+              <ShoppingCart className="h-5 w-5 text-gray-700" />
               {isHydrated && itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {itemCount}
@@ -133,7 +133,7 @@ export default function Header() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center space-x-2 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center space-x-2 p-2 rounded-xl hover:bg-gray-100 transition-colors"
                 >
                   <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
                     {user.avatar ? (
@@ -146,11 +146,11 @@ export default function Header() {
                       <User className="h-4 w-4 text-white" />
                     )}
                   </div>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200 hidden sm:block">
+                  <span className="text-sm font-medium text-gray-700 hidden sm:block">
                     {user.firstName}
                   </span>
                   <ChevronDown
-                    className={`h-4 w-4 text-gray-700 dark:text-gray-200 transition-transform ${showUserMenu ? "rotate-180" : ""}`}
+                    className={`h-4 w-4 text-gray-700 transition-transform ${showUserMenu ? "rotate-180" : ""}`}
                   />
                 </motion.button>
 
@@ -213,9 +213,9 @@ export default function Header() {
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                   >
-                    <User className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+                    <User className="h-5 w-5 text-gray-700" />
                   </motion.button>
                 </Link>
               )
@@ -226,12 +226,12 @@ export default function Header() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="md:hidden p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
               {isMenuOpen ? (
-                <X className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+                <X className="h-5 w-5 text-gray-700" />
               ) : (
-                <Menu className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+                <Menu className="h-5 w-5 text-gray-700" />
               )}
             </motion.button>
           </div>
@@ -244,13 +244,13 @@ export default function Header() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="py-4 border-t border-gray-200 dark:border-gray-700"
+              className="py-4 border-t border-gray-200"
             >
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Search products..."
-                  className="w-full px-4 py-3 pr-12 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 pr-12 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 />
                 <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               </div>
@@ -265,14 +265,14 @@ export default function Header() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700"
+              className="md:hidden py-4 border-t border-gray-200"
             >
               <div className="space-y-4">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="block text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium"
+                    className="block text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}

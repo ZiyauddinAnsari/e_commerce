@@ -21,6 +21,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { loadStripe } from "@stripe/stripe-js";
 
 interface ShippingAddress {
   firstName: string;
@@ -109,17 +110,50 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
-      // Simulate order processing
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Prepare items for Stripe
+      const stripeItems = items.map((item) => ({
+        name: item.product.name,
+        description: item.product.description,
+        price: item.product.price,
+        quantity: item.quantity,
+        image: item.product.images[0],
+      }));
 
-      // Clear cart
-      clearCart();
+      // Create checkout session
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: stripeItems,
+          successUrl: window.location.origin + "/checkout/success",
+          cancelUrl: window.location.origin + "/checkout/cancelled",
+        }),
+      });
 
-      // Show success
-      setOrderPlaced(true);
-      setCurrentStep(4);
+      if (!response.ok) {
+        throw new Error("Failed to create checkout session");
+      }
+
+      const { sessionId, url } = await response.json();
+
+      // Redirect to Stripe Checkout
+      if (url) {
+        window.location.href = url;
+      } else {
+        // Fallback: use Stripe.js to redirect
+        const stripe = await loadStripe(
+          process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+        );
+        if (stripe) {
+          await stripe.redirectToCheckout({ sessionId });
+        }
+      }
     } catch (error) {
       console.error("Order failed:", error);
+      // Show error message to user
+      alert("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

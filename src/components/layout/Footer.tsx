@@ -27,12 +27,12 @@ export default function Footer() {
   ];
 
   const categories = [
-    { name: "Electronics", href: "/categories/electronics" },
-    { name: "Computers", href: "/categories/computers" },
-    { name: "Audio", href: "/categories/audio" },
-    { name: "Wearables", href: "/categories/wearables" },
-    { name: "Photography", href: "/categories/photography" },
-    { name: "Gaming", href: "/categories/gaming" },
+    { name: "Electronics", href: "/products?category=electronics" },
+    { name: "Computers", href: "/products?category=computers" },
+    { name: "Audio", href: "/products?category=audio" },
+    { name: "Wearables", href: "/products?category=wearables" },
+    { name: "Photography", href: "/products?category=photography" },
+    { name: "Gaming", href: "/products?category=gaming" },
   ];
 
   const socialLinks = [

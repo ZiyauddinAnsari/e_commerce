@@ -1,152 +1,327 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ShoppingBag, Star, TrendingUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ShoppingCart,
+  Heart,
+  Star,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
-import { preloadProducts } from "@/data/products";
+import { useEffect, useState } from "react";
+import { getProducts } from "@/data/products";
+import { Product } from "@/types";
+import { formatCurrency } from "@/utils/format";
+import { useCartStore } from "@/store/cartStore";
+import { useWishlistStore } from "@/store/wishlistStore";
 
 export default function Hero() {
-  // Preload products when component mounts to improve "Shop Now" performance
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      preloadProducts();
-    }, 1000); // Delay to not interfere with initial page load
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const { addItem } = useCartStore();
+  const { addItem: addToWishlist, items: wishlistItems } = useWishlistStore();
 
-    return () => clearTimeout(timer);
+  // Auto-rotate carousel
+  useEffect(() => {
+    if (featuredProducts.length === 0) return;
+
+    const timer = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % featuredProducts.length);
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(timer);
+  }, [featuredProducts.length]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (featuredProducts.length === 0) return;
+
+      if (e.key === "ArrowLeft") {
+        prevSlide();
+      } else if (e.key === "ArrowRight") {
+        nextSlide();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [featuredProducts.length]);
+
+  // Load featured products
+  useEffect(() => {
+    const loadFeaturedProducts = async () => {
+      try {
+        const products = await getProducts();
+        // Get featured products or first 5 products
+        const featured =
+          products.filter((p) => p.isFeatured).slice(0, 5) ||
+          products.slice(0, 5);
+        setFeaturedProducts(featured);
+      } catch (error) {
+        console.error("Failed to load featured products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFeaturedProducts();
   }, []);
 
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % featuredProducts.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? featuredProducts.length - 1 : prevIndex - 1
+    );
+  };
+
+  const handleAddToCart = (product: Product) => {
+    addItem(product, 1);
+  };
+
+  const handleAddToWishlist = (product: Product) => {
+    addToWishlist(product);
+  };
+
+  const isInWishlist = (productId: string) => {
+    return wishlistItems.some((item: Product) => item.id === productId);
+  };
+
+  if (loading) {
+    return (
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800">
+          <div className="absolute inset-0 bg-black/20" />
+        </div>
+        <div className="relative z-10 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+          <p className="text-white mt-4">Loading Products...</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Animated background */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800">
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute inset-0 bg-hero-pattern opacity-10" />
       </div>
 
-      {/* Floating elements */}
-      <div className="absolute top-20 left-10 animate-float">
-        <div className="glass p-4 rounded-2xl">
-          <ShoppingBag className="h-8 w-8 text-white" />
-        </div>
-      </div>
-      <div
-        className="absolute top-40 right-20 animate-float"
-        style={{ animationDelay: "2s" }}
-      >
-        <div className="glass p-4 rounded-2xl">
-          <Star className="h-8 w-8 text-yellow-400" />
-        </div>
-      </div>
-      <div
-        className="absolute bottom-40 left-20 animate-float"
-        style={{ animationDelay: "4s" }}
-      >
-        <div className="glass p-4 rounded-2xl">
-          <TrendingUp className="h-8 w-8 text-green-400" />
-        </div>
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="space-y-8"
-        >
-          {/* Main heading */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-tight">
-            <span className="block">Premium</span>
-            <span className="block bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
-              Shopping
-            </span>
-            <span className="block">Experience</span>
-          </h1>
-
-          {/* Subtitle */}
+      {/* Main carousel container */}
+      <div className="relative z-10 w-full max-w-none mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8">
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto leading-relaxed"
+            className="text-xl text-gray-200 mb-8"
           >
-            Discover curated collections of premium products with lightning-fast
-            delivery and unmatched customer service. Your next favorite purchase
-            is just a click away.
+            Discover our handpicked collection of premium products
           </motion.p>
+        </div>
 
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          >
-            <Link href="/products" prefetch={true}>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px]"
-              >
-                Shop Now
-              </motion.button>
-            </Link>
-            <Link href="/categories" prefetch={true}>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 glass border-2 border-white/30 text-white font-semibold rounded-full backdrop-blur-md hover:bg-white/20 transition-all duration-300 min-w-[200px]"
-              >
-                Browse Categories
-              </motion.button>
-            </Link>
-          </motion.div>
+        {/* Carousel */}
+        <div className="relative">
+          {/* Fixed height container to prevent title jumping */}
+          <div className="min-h-[600px] flex items-center justify-center">
+            <AnimatePresence mode="wait">
+              {featuredProducts.length > 0 && (
+                <motion.div
+                  key={currentIndex}
+                  initial={{ opacity: 0, x: 300 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -300 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex justify-center w-full"
+                >
+                  <div className="max-w-6xl w-full px-16">
+                    <ProductSlide
+                      product={featuredProducts[currentIndex]}
+                      onAddToCart={() =>
+                        handleAddToCart(featuredProducts[currentIndex])
+                      }
+                      onAddToWishlist={() =>
+                        handleAddToWishlist(featuredProducts[currentIndex])
+                      }
+                      isInWishlist={isInWishlist(
+                        featuredProducts[currentIndex].id
+                      )}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-16"
+          {/* Enhanced Navigation buttons */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 p-4 rounded-full glass border border-white/20 text-white hover:bg-white/20 hover:scale-110 transition-all duration-300 z-20 shadow-2xl"
           >
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-white">
-                10K+
-              </div>
-              <div className="text-gray-300">Happy Customers</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-white">
-                5K+
-              </div>
-              <div className="text-gray-300">Premium Products</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-white">
-                99%
-              </div>
-              <div className="text-gray-300">Satisfaction Rate</div>
-            </div>
-          </motion.div>
-        </motion.div>
+            <ChevronLeft className="h-8 w-8" />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 p-4 rounded-full glass border border-white/20 text-white hover:bg-white/20 hover:scale-110 transition-all duration-300 z-20 shadow-2xl"
+          >
+            <ChevronRight className="h-8 w-8" />
+          </button>
+
+          {/* Enhanced Dots indicator */}
+          <div className="flex justify-center space-x-3 mt-8">
+            {featuredProducts.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-4 h-4 rounded-full transition-all duration-300 hover:scale-125 ${
+                  index === currentIndex
+                    ? "bg-white scale-125 shadow-lg"
+                    : "bg-white/50 hover:bg-white/70"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center"
-        >
-          <div className="w-1 h-3 bg-white/50 rounded-full mt-2"></div>
-        </motion.div>
-      </motion.div>
     </section>
+  );
+}
+
+// Product Slide Component
+interface ProductSlideProps {
+  product: Product;
+  onAddToCart: () => void;
+  onAddToWishlist: () => void;
+  isInWishlist: boolean;
+}
+
+function ProductSlide({
+  product,
+  onAddToCart,
+  onAddToWishlist,
+  isInWishlist,
+}: ProductSlideProps) {
+  return (
+    <Link href={`/products/${product.id}`} className="block group">
+      <div className="glass rounded-3xl p-8 md:p-12 backdrop-blur-md border border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 cursor-pointer">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* Product Image */}
+          <div className="relative">
+            <div className="relative aspect-square rounded-2xl overflow-hidden bg-white/10 shadow-2xl">
+              <Image
+                src={product.images[0]}
+                alt={product.name}
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-300"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+              {product.discount && (
+                <div className="absolute top-6 right-6 bg-red-500 text-white px-4 py-2 rounded-full text-base font-semibold shadow-lg">
+                  -{product.discount}%
+                </div>
+              )}
+              {product.isNew && (
+                <div className="absolute top-6 left-6 bg-blue-500 text-white px-4 py-2 rounded-full text-base font-semibold shadow-lg">
+                  NEW
+                </div>
+              )}
+              {/* Gradient overlay for better text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </div>
+          </div>
+
+          {/* Product Info */}
+          <div className="space-y-8 text-center md:text-left">
+            <div>
+              <h3 className="text-4xl md:text-5xl font-bold text-white mb-4 group-hover:text-yellow-400 transition-colors duration-300 leading-tight">
+                {product.name}
+              </h3>
+              <p className="text-gray-200 text-xl leading-relaxed">
+                {product.description}
+              </p>
+            </div>
+
+            {/* Rating */}
+            <div className="flex items-center justify-center md:justify-start space-x-3">
+              <div className="flex items-center space-x-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-6 w-6 ${
+                      i < Math.floor(product.rating)
+                        ? "text-yellow-400 fill-current"
+                        : "text-gray-400"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-white font-semibold text-lg">
+                {product.rating}
+              </span>
+              <span className="text-gray-300 text-lg">
+                ({product.reviewCount} reviews)
+              </span>
+            </div>
+
+            {/* Price */}
+            <div className="flex items-center justify-center md:justify-start space-x-4">
+              <span className="text-5xl md:text-6xl font-bold text-white">
+                {formatCurrency(product.price)}
+              </span>
+              {product.originalPrice &&
+                product.originalPrice > product.price && (
+                  <span className="text-2xl text-gray-400 line-through">
+                    {formatCurrency(product.originalPrice)}
+                  </span>
+                )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-center md:justify-start space-x-6">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onAddToCart();
+                }}
+                className="px-10 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3 text-lg"
+              >
+                <ShoppingCart className="h-6 w-6" />
+                <span>Add to Cart</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onAddToWishlist();
+                }}
+                className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                  isInWishlist
+                    ? "bg-red-500 border-red-500 text-white"
+                    : "border-white/30 text-white hover:bg-white/10"
+                }`}
+              >
+                <Heart
+                  className={`h-6 w-6 ${isInWishlist ? "fill-current" : ""}`}
+                />
+              </motion.button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 }

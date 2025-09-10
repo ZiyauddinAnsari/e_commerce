@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Filter, Grid, List, Search, SlidersHorizontal } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { getProducts } from "@/data/products";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Product } from "@/types";
 import ProductCard from "@/components/product/ProductCard";
 import ProductFilters from "@/components/product/ProductFilters";
+import ProductPagination from "@/components/product/ProductPagination";
 import Header from "@/components/layout/Header";
 import HeaderSkeleton from "@/components/layout/HeaderSkeleton";
 import Footer from "@/components/layout/Footer";
@@ -17,8 +19,12 @@ import ClientOnly from "@/components/ClientOnly";
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const productsPerPage = 12;
 
   const {
     filteredProducts,
@@ -31,6 +37,19 @@ export default function ProductsPage() {
   } = useProductFilters(products);
 
   const debouncedSearch = useDebounce(searchQuery, 300);
+
+  // Pagination logic
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * productsPerPage;
+    return filteredProducts.slice(startIndex, startIndex + productsPerPage);
+  }, [filteredProducts, currentPage]);
+
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredProducts.length]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -48,6 +67,14 @@ export default function ProductsPage() {
 
     fetchProducts();
   }, []);
+
+  // Handle URL parameters for category filtering
+  useEffect(() => {
+    const category = searchParams.get("category");
+    if (category && products.length > 0) {
+      updateFilter({ category });
+    }
+  }, [searchParams, products.length, updateFilter]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
@@ -175,8 +202,10 @@ export default function ProductsPage() {
               {/* Results Count */}
               <div className="flex items-center justify-between mb-6">
                 <p className="text-gray-600 dark:text-gray-400">
-                  Showing {filteredProducts.length} of {products.length}{" "}
-                  products
+                  Showing {paginatedProducts.length} of{" "}
+                  {filteredProducts.length} products
+                  {filteredProducts.length !== products.length &&
+                    ` (filtered from ${products.length} total)`}
                 </p>
                 {(searchQuery || Object.keys(filters).length > 0) && (
                   <button
@@ -217,22 +246,33 @@ export default function ProductsPage() {
                   </button>
                 </div>
               ) : (
-                <motion.div
-                  layout
-                  className={
-                    viewMode === "grid"
-                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                      : "space-y-6"
-                  }
-                >
-                  {filteredProducts.map((product, index) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      index={index}
+                <>
+                  <motion.div
+                    layout
+                    className={
+                      viewMode === "grid"
+                        ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                        : "space-y-6"
+                    }
+                  >
+                    {paginatedProducts.map((product, index) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        index={index}
+                      />
+                    ))}
+                  </motion.div>
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <ProductPagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={setCurrentPage}
                     />
-                  ))}
-                </motion.div>
+                  )}
+                </>
               )}
             </div>
           </div>

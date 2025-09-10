@@ -13,12 +13,19 @@ export const formatNumber = (number: number): string => {
 };
 
 export const formatDate = (date: string | Date): string => {
-  const dateObj = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(dateObj);
+  try {
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    if (isNaN(dateObj.getTime())) {
+      return "Invalid Date";
+    }
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(dateObj);
+  } catch {
+    return "Invalid Date";
+  }
 };
 
 export const formatShortDate = (date: string | Date): string => {
