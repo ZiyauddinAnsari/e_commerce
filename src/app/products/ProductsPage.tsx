@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Filter, Grid, List, Search, SlidersHorizontal } from "lucide-react";
+import { Filter, Search, SlidersHorizontal } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { getProducts } from "@/data/products";
 import { useProductFilters } from "@/hooks/useProductFilters";
@@ -20,7 +20,6 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -102,7 +101,7 @@ export default function ProductsPage() {
           </div>
         </section>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-6 py-8">
           {/* Search and Controls */}
           <div className="flex flex-col lg:flex-row gap-6 mb-8">
             {/* Search Bar */}
@@ -129,30 +128,6 @@ export default function ProductsPage() {
                 <SlidersHorizontal className="h-5 w-5" />
                 <span>Filters</span>
               </button>
-
-              {/* View Mode */}
-              <div className="flex border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-3 ${
-                    viewMode === "grid"
-                      ? "bg-blue-600 text-white"
-                      : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                  }`}
-                >
-                  <Grid className="h-5 w-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-3 ${
-                    viewMode === "list"
-                      ? "bg-blue-600 text-white"
-                      : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                  }`}
-                >
-                  <List className="h-5 w-5" />
-                </button>
-              </div>
 
               {/* Sort */}
               <select
@@ -184,10 +159,10 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          <div className="flex gap-8">
-            {/* Filters Sidebar */}
+          <div className="flex gap-4">
+            {/* Filters Sidebar - Moved to Left */}
             <div
-              className={`lg:block ${showFilters ? "block" : "hidden"} w-full lg:w-80`}
+              className={`lg:block ${showFilters ? "block" : "hidden"} w-full lg:w-64 flex-shrink-0`}
             >
               <ProductFilters
                 filters={filters}
@@ -198,7 +173,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Products Grid */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               {/* Results Count */}
               <div className="flex items-center justify-between mb-6">
                 <p className="text-gray-600 dark:text-gray-400">
@@ -219,8 +194,8 @@ export default function ProductsPage() {
 
               {/* Loading State */}
               {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[...Array(6)].map((_, i) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {[...Array(8)].map((_, i) => (
                     <div key={i} className="animate-pulse">
                       <div className="bg-gray-200 dark:bg-gray-700 aspect-square rounded-xl mb-4"></div>
                       <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
@@ -249,11 +224,7 @@ export default function ProductsPage() {
                 <>
                   <motion.div
                     layout
-                    className={
-                      viewMode === "grid"
-                        ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                        : "space-y-6"
-                    }
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
                   >
                     {paginatedProducts.map((product, index) => (
                       <ProductCard

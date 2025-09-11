@@ -95,7 +95,7 @@ export default function Hero() {
 
   if (loading) {
     return (
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800">
           <div className="absolute inset-0 bg-black/20" />
         </div>
@@ -108,7 +108,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+    <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden pt-20">
       {/* Animated background */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800">
         <div className="absolute inset-0 bg-black/20" />
@@ -117,12 +117,12 @@ export default function Hero() {
 
       {/* Main carousel container */}
       <div className="relative z-10 w-full max-w-none mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-xl text-gray-200 mb-8"
+            className="text-lg text-gray-200 mb-6"
           >
             Discover our handpicked collection of premium products
           </motion.p>
@@ -130,8 +130,8 @@ export default function Hero() {
 
         {/* Carousel */}
         <div className="relative">
-          {/* Fixed height container to prevent title jumping */}
-          <div className="min-h-[600px] flex items-center justify-center">
+          {/* Reduced height container */}
+          <div className="min-h-[300px] flex items-center justify-center">
             <AnimatePresence mode="wait">
               {featuredProducts.length > 0 && (
                 <motion.div
@@ -142,7 +142,7 @@ export default function Hero() {
                   transition={{ duration: 0.5 }}
                   className="flex justify-center w-full"
                 >
-                  <div className="max-w-6xl w-full px-16">
+                  <div className="max-w-5xl w-full px-8">
                     <ProductSlide
                       product={featuredProducts[currentIndex]}
                       onAddToCart={() =>
@@ -164,24 +164,24 @@ export default function Hero() {
           {/* Enhanced Navigation buttons */}
           <button
             onClick={prevSlide}
-            className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 p-4 rounded-full glass border border-white/20 text-white hover:bg-white/20 hover:scale-110 transition-all duration-300 z-20 shadow-2xl"
+            className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 p-3 rounded-full glass border border-white/20 text-white hover:bg-white/20 hover:scale-110 transition-all duration-300 z-20 shadow-2xl"
           >
-            <ChevronLeft className="h-8 w-8" />
+            <ChevronLeft className="h-6 w-6" />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 p-4 rounded-full glass border border-white/20 text-white hover:bg-white/20 hover:scale-110 transition-all duration-300 z-20 shadow-2xl"
+            className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 p-3 rounded-full glass border border-white/20 text-white hover:bg-white/20 hover:scale-110 transition-all duration-300 z-20 shadow-2xl"
           >
-            <ChevronRight className="h-8 w-8" />
+            <ChevronRight className="h-6 w-6" />
           </button>
 
           {/* Enhanced Dots indicator */}
-          <div className="flex justify-center space-x-3 mt-8">
+          <div className="flex justify-center space-x-3 mt-6">
             {featuredProducts.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`w-4 h-4 rounded-full transition-all duration-300 hover:scale-125 ${
+                className={`w-3 h-3 rounded-full transition-all duration-300 hover:scale-125 ${
                   index === currentIndex
                     ? "bg-white scale-125 shadow-lg"
                     : "bg-white/50 hover:bg-white/70"
@@ -211,25 +211,25 @@ function ProductSlide({
 }: ProductSlideProps) {
   return (
     <Link href={`/products/${product.id}`} className="block group">
-      <div className="glass rounded-3xl p-8 md:p-12 backdrop-blur-md border border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 cursor-pointer">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+      <div className="glass rounded-2xl p-6 md:p-8 backdrop-blur-md border border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 cursor-pointer">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
           {/* Product Image */}
           <div className="relative">
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-white/10 shadow-2xl">
+            <div className="relative aspect-square rounded-xl overflow-hidden bg-white/10 shadow-2xl max-h-[250px]">
               <Image
                 src={product.images[0]}
                 alt={product.name}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-300"
-                sizes="(max-width: 768px) 100vw, 50vw"
+                sizes="(max-width: 768px) 100vw, 40vw"
               />
               {product.discount && (
-                <div className="absolute top-6 right-6 bg-red-500 text-white px-4 py-2 rounded-full text-base font-semibold shadow-lg">
+                <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
                   -{product.discount}%
                 </div>
               )}
               {product.isNew && (
-                <div className="absolute top-6 left-6 bg-blue-500 text-white px-4 py-2 rounded-full text-base font-semibold shadow-lg">
+                <div className="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
                   NEW
                 </div>
               )}
@@ -239,23 +239,23 @@ function ProductSlide({
           </div>
 
           {/* Product Info */}
-          <div className="space-y-8 text-center md:text-left">
+          <div className="space-y-4 text-center md:text-left">
             <div>
-              <h3 className="text-4xl md:text-5xl font-bold text-white mb-4 group-hover:text-yellow-400 transition-colors duration-300 leading-tight">
+              <h3 className="text-2xl md:text-3xl font-bold text-white mb-3 group-hover:text-yellow-400 transition-colors duration-300 leading-tight">
                 {product.name}
               </h3>
-              <p className="text-gray-200 text-xl leading-relaxed">
+              <p className="text-gray-200 text-base leading-relaxed line-clamp-2">
                 {product.description}
               </p>
             </div>
 
             {/* Rating */}
-            <div className="flex items-center justify-center md:justify-start space-x-3">
+            <div className="flex items-center justify-center md:justify-start space-x-2">
               <div className="flex items-center space-x-1">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={`h-6 w-6 ${
+                    className={`h-4 w-4 ${
                       i < Math.floor(product.rating)
                         ? "text-yellow-400 fill-current"
                         : "text-gray-400"
@@ -263,29 +263,29 @@ function ProductSlide({
                   />
                 ))}
               </div>
-              <span className="text-white font-semibold text-lg">
+              <span className="text-white font-semibold text-sm">
                 {product.rating}
               </span>
-              <span className="text-gray-300 text-lg">
+              <span className="text-gray-300 text-sm">
                 ({product.reviewCount} reviews)
               </span>
             </div>
 
             {/* Price */}
-            <div className="flex items-center justify-center md:justify-start space-x-4">
-              <span className="text-5xl md:text-6xl font-bold text-white">
+            <div className="flex items-center justify-center md:justify-start space-x-3">
+              <span className="text-3xl md:text-4xl font-bold text-white">
                 {formatCurrency(product.price)}
               </span>
               {product.originalPrice &&
                 product.originalPrice > product.price && (
-                  <span className="text-2xl text-gray-400 line-through">
+                  <span className="text-lg text-gray-400 line-through">
                     {formatCurrency(product.originalPrice)}
                   </span>
                 )}
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-center md:justify-start space-x-6">
+            <div className="flex items-center justify-center md:justify-start space-x-4">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -294,9 +294,9 @@ function ProductSlide({
                   e.stopPropagation();
                   onAddToCart();
                 }}
-                className="px-10 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3 text-lg"
+                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 text-sm"
               >
-                <ShoppingCart className="h-6 w-6" />
+                <ShoppingCart className="h-4 w-4" />
                 <span>Add to Cart</span>
               </motion.button>
 
@@ -308,14 +308,14 @@ function ProductSlide({
                   e.stopPropagation();
                   onAddToWishlist();
                 }}
-                className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                className={`p-3 rounded-lg border-2 transition-all duration-300 ${
                   isInWishlist
                     ? "bg-red-500 border-red-500 text-white"
                     : "border-white/30 text-white hover:bg-white/10"
                 }`}
               >
                 <Heart
-                  className={`h-6 w-6 ${isInWishlist ? "fill-current" : ""}`}
+                  className={`h-4 w-4 ${isInWishlist ? "fill-current" : ""}`}
                 />
               </motion.button>
             </div>

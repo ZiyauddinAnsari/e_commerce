@@ -51,6 +51,9 @@ export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{
+    [key: string]: string;
+  }>({});
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     firstName: user?.firstName || "",
@@ -106,7 +109,138 @@ export default function CheckoutPage() {
     }
   }, [items.length, orderPlaced, router]);
 
+  // Redirect to auth if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/auth?redirect=/checkout");
+    }
+  }, [isAuthenticated, router]);
+
+  // Don't render checkout if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
+        <Header />
+        <div className="pt-20 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              Please Login
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              You need to be logged in to access checkout.
+            </p>
+            <Link
+              href="/auth?redirect=/checkout"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-medium hover:shadow-lg transition-all duration-300"
+            >
+              Go to Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Validation functions
+  const validateShippingAddress = () => {
+    const errors: { [key: string]: string } = {};
+
+    if (!shippingAddress.firstName.trim())
+      errors.firstName = "First name is required";
+    if (!shippingAddress.lastName.trim())
+      errors.lastName = "Last name is required";
+    if (!shippingAddress.email.trim()) errors.email = "Email is required";
+    if (!shippingAddress.phone.trim())
+      errors.phone = "Phone number is required";
+    if (!shippingAddress.address.trim()) errors.address = "Address is required";
+    if (!shippingAddress.city.trim()) errors.city = "City is required";
+    if (!shippingAddress.state.trim()) errors.state = "State is required";
+    if (!shippingAddress.zipCode.trim())
+      errors.zipCode = "ZIP code is required";
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (
+      shippingAddress.email.trim() &&
+      !emailRegex.test(shippingAddress.email)
+    ) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    // Phone format validation (basic)
+    const phoneRegex = /^[\d\s\-\+\(\)]+$/;
+    if (
+      shippingAddress.phone.trim() &&
+      !phoneRegex.test(shippingAddress.phone)
+    ) {
+      errors.phone = "Please enter a valid phone number";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validatePaymentMethod = () => {
+    const errors: { [key: string]: string } = {};
+
+    if (!paymentMethod.cardholderName?.trim())
+      errors.cardholderName = "Cardholder name is required";
+    if (!paymentMethod.cardNumber?.trim())
+      errors.cardNumber = "Card number is required";
+    if (!paymentMethod.expiryDate?.trim())
+      errors.expiryDate = "Expiry date is required";
+    if (!paymentMethod.cvv?.trim()) errors.cvv = "CVV is required";
+
+    // Card number validation (basic length check)
+    const cardNumber = paymentMethod.cardNumber?.replace(/\s/g, "") || "";
+    if (cardNumber && (cardNumber.length < 13 || cardNumber.length > 19)) {
+      errors.cardNumber = "Please enter a valid card number";
+    }
+
+    // Expiry date validation (MM/YY format)
+    const expiryRegex = /^(0[1-9]|1[0-2])\/([0-9]{2})$/;
+    if (
+      paymentMethod.expiryDate?.trim() &&
+      !expiryRegex.test(paymentMethod.expiryDate)
+    ) {
+      errors.expiryDate = "Please enter expiry date in MM/YY format";
+    }
+
+    // CVV validation (3-4 digits)
+    const cvvRegex = /^[0-9]{3,4}$/;
+    if (paymentMethod.cvv?.trim() && !cvvRegex.test(paymentMethod.cvv)) {
+      errors.cvv = "CVV must be 3 or 4 digits";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleStepNavigation = (nextStep: number) => {
+    if (nextStep === 2) {
+      // Validate shipping address before proceeding to payment
+      if (validateShippingAddress()) {
+        setCurrentStep(nextStep);
+      }
+    } else if (nextStep === 3) {
+      // Validate payment method before proceeding to review
+      if (validatePaymentMethod()) {
+        setCurrentStep(nextStep);
+      }
+    } else {
+      // No validation needed for going back or to final step
+      setCurrentStep(nextStep);
+    }
+  };
+
   const handlePlaceOrder = async () => {
+    // Final validation before placing order
+    if (!validateShippingAddress() || !validatePaymentMethod()) {
+      setLoading(false);
+      alert("Please fill in all required fields correctly.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -133,10 +267,14 @@ export default function CheckoutPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create checkout session");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create checkout session");
       }
 
       const { sessionId, url } = await response.json();
+
+      // Clear cart before redirecting
+      clearCart();
 
       // Redirect to Stripe Checkout
       if (url) {
@@ -147,13 +285,18 @@ export default function CheckoutPage() {
           process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
         );
         if (stripe) {
-          await stripe.redirectToCheckout({ sessionId });
+          const { error } = await stripe.redirectToCheckout({ sessionId });
+          if (error) {
+            throw new Error(error.message);
+          }
         }
       }
     } catch (error) {
       console.error("Order failed:", error);
-      // Show error message to user
-      alert("Something went wrong. Please try again.");
+      // Show more specific error message to user
+      alert(
+        `Checkout failed: ${error instanceof Error ? error.message : "Something went wrong. Please try again."}`
+      );
     } finally {
       setLoading(false);
     }
@@ -287,9 +430,18 @@ export default function CheckoutPage() {
                             firstName: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          validationErrors.firstName
+                            ? "border-red-500 dark:border-red-400"
+                            : "border-gray-300 dark:border-gray-600"
+                        }`}
                         required
                       />
+                      {validationErrors.firstName && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.firstName}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -305,9 +457,18 @@ export default function CheckoutPage() {
                             lastName: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          validationErrors.lastName
+                            ? "border-red-500 dark:border-red-400"
+                            : "border-gray-300 dark:border-gray-600"
+                        }`}
                         required
                       />
+                      {validationErrors.lastName && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.lastName}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -323,9 +484,18 @@ export default function CheckoutPage() {
                             email: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          validationErrors.email
+                            ? "border-red-500 dark:border-red-400"
+                            : "border-gray-300 dark:border-gray-600"
+                        }`}
                         required
                       />
+                      {validationErrors.email && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.email}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -341,9 +511,18 @@ export default function CheckoutPage() {
                             phone: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          validationErrors.phone
+                            ? "border-red-500 dark:border-red-400"
+                            : "border-gray-300 dark:border-gray-600"
+                        }`}
                         required
                       />
+                      {validationErrors.phone && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.phone}
+                        </p>
+                      )}
                     </div>
 
                     <div className="md:col-span-2">
@@ -359,10 +538,19 @@ export default function CheckoutPage() {
                             address: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          validationErrors.address
+                            ? "border-red-500 dark:border-red-400"
+                            : "border-gray-300 dark:border-gray-600"
+                        }`}
                         placeholder="Street address"
                         required
                       />
+                      {validationErrors.address && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.address}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -378,9 +566,18 @@ export default function CheckoutPage() {
                             city: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          validationErrors.city
+                            ? "border-red-500 dark:border-red-400"
+                            : "border-gray-300 dark:border-gray-600"
+                        }`}
                         required
                       />
+                      {validationErrors.city && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.city}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -396,9 +593,18 @@ export default function CheckoutPage() {
                             state: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          validationErrors.state
+                            ? "border-red-500 dark:border-red-400"
+                            : "border-gray-300 dark:border-gray-600"
+                        }`}
                         required
                       />
+                      {validationErrors.state && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.state}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -414,9 +620,18 @@ export default function CheckoutPage() {
                             zipCode: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          validationErrors.zipCode
+                            ? "border-red-500 dark:border-red-400"
+                            : "border-gray-300 dark:border-gray-600"
+                        }`}
                         required
                       />
+                      {validationErrors.zipCode && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.zipCode}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -487,7 +702,7 @@ export default function CheckoutPage() {
 
                   <div className="mt-8 flex justify-end">
                     <button
-                      onClick={() => setCurrentStep(2)}
+                      onClick={() => handleStepNavigation(2)}
                       className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-300"
                     >
                       Continue to Payment
@@ -557,10 +772,19 @@ export default function CheckoutPage() {
                               cardholderName: e.target.value,
                             })
                           }
-                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                            validationErrors.cardholderName
+                              ? "border-red-500 dark:border-red-400"
+                              : "border-gray-300 dark:border-gray-600"
+                          }`}
                           placeholder="John Doe"
                           required
                         />
+                        {validationErrors.cardholderName && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {validationErrors.cardholderName}
+                          </p>
+                        )}
                       </div>
 
                       <div>
@@ -576,10 +800,19 @@ export default function CheckoutPage() {
                               cardNumber: e.target.value,
                             })
                           }
-                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                            validationErrors.cardNumber
+                              ? "border-red-500 dark:border-red-400"
+                              : "border-gray-300 dark:border-gray-600"
+                          }`}
                           placeholder="1234 5678 9012 3456"
                           required
                         />
+                        {validationErrors.cardNumber && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {validationErrors.cardNumber}
+                          </p>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
@@ -596,10 +829,19 @@ export default function CheckoutPage() {
                                 expiryDate: e.target.value,
                               })
                             }
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                              validationErrors.expiryDate
+                                ? "border-red-500 dark:border-red-400"
+                                : "border-gray-300 dark:border-gray-600"
+                            }`}
                             placeholder="MM/YY"
                             required
                           />
+                          {validationErrors.expiryDate && (
+                            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                              {validationErrors.expiryDate}
+                            </p>
+                          )}
                         </div>
 
                         <div>
@@ -615,10 +857,19 @@ export default function CheckoutPage() {
                                 cvv: e.target.value,
                               })
                             }
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                              validationErrors.cvv
+                                ? "border-red-500 dark:border-red-400"
+                                : "border-gray-300 dark:border-gray-600"
+                            }`}
                             placeholder="123"
                             required
                           />
+                          {validationErrors.cvv && (
+                            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                              {validationErrors.cvv}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -632,7 +883,7 @@ export default function CheckoutPage() {
                       Back
                     </button>
                     <button
-                      onClick={() => setCurrentStep(3)}
+                      onClick={() => handleStepNavigation(3)}
                       className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-300"
                     >
                       Review Order

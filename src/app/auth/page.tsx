@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,8 +13,19 @@ export default function AuthPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { login, register } = useAuthStore();
+  const { login, register, isAuthenticated } = useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Get the redirect URL from query params or default to home
+  const redirectTo = searchParams.get("redirect") || "/";
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push(redirectTo);
+    }
+  }, [isAuthenticated, router, redirectTo]);
 
   const [loginForm, setLoginForm] = useState({
     email: "",
@@ -39,10 +50,10 @@ export default function AuthPage() {
 
     try {
       await login(loginForm.email, loginForm.password);
-      router.push("/");
+      router.push(redirectTo);
     } catch (error) {
       console.error("Login failed:", error);
-      // Handle error (show toast, etc.)
+      alert("Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -69,10 +80,10 @@ export default function AuthPage() {
         country: registerForm.country,
         password: registerForm.password,
       });
-      router.push("/");
+      router.push(redirectTo);
     } catch (error) {
       console.error("Registration failed:", error);
-      // Handle error (show toast, etc.)
+      alert("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -128,84 +139,104 @@ export default function AuthPage() {
 
           {/* Login Form */}
           {isLogin ? (
-            <form onSubmit={handleLoginSubmit} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type="email"
-                    value={loginForm.email}
-                    onChange={(e) =>
-                      setLoginForm({ ...loginForm, email: e.target.value })
-                    }
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Enter your email"
-                    required
-                  />
+            <div>
+              {/* Demo Credentials */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+                  Demo Credentials
+                </h4>
+                <p className="text-xs text-blue-600 dark:text-blue-300 mb-2">
+                  You can use any email and password for demo purposes:
+                </p>
+                <div className="text-xs text-blue-600 dark:text-blue-300">
+                  <p>
+                    📧 Email: <code>demo@example.com</code>
+                  </p>
+                  <p>
+                    🔒 Password: <code>password123</code>
+                  </p>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={loginForm.password}
-                    onChange={(e) =>
-                      setLoginForm({ ...loginForm, password: e.target.value })
-                    }
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Enter your password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              <form onSubmit={handleLoginSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="email"
+                      value={loginForm.email}
+                      onChange={(e) =>
+                        setLoginForm({ ...loginForm, email: e.target.value })
+                      }
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Enter your email"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={loginForm.password}
+                      onChange={(e) =>
+                        setLoginForm({ ...loginForm, password: e.target.value })
+                      }
+                      className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Enter your password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    />
+                    <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                      Remember me
+                    </span>
+                  </label>
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-sm text-blue-600 hover:text-blue-500"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
+                    Forgot password?
+                  </Link>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                  />
-                  <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                    Remember me
-                  </span>
-                </label>
-                <Link
-                  href="/auth/forgot-password"
-                  className="text-sm text-blue-600 hover:text-blue-500"
+                <motion.button
+                  type="submit"
+                  disabled={loading}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-medium hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Forgot password?
-                </Link>
-              </div>
-
-              <motion.button
-                type="submit"
-                disabled={loading}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-medium hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? "Signing In..." : "Sign In"}
-              </motion.button>
-            </form>
+                  {loading ? "Signing In..." : "Sign In"}
+                </motion.button>
+              </form>
+            </div>
           ) : (
             /* Register Form */
             <form onSubmit={handleRegisterSubmit} className="space-y-6">

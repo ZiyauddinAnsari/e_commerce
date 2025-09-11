@@ -154,7 +154,9 @@ export default function CartDrawer() {
             </div>
 
             {/* Checkout Button */}
-            <Link href={isAuthenticated ? "/checkout" : "/auth/login"}>
+            <Link
+              href={isAuthenticated ? "/checkout" : "/auth?redirect=/checkout"}
+            >
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
