@@ -108,7 +108,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden pt-20">
+    <section className="relative h-[60vh] overflow-hidden flex items-center">
       {/* Animated background */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800">
         <div className="absolute inset-0 bg-black/20" />
@@ -116,22 +116,11 @@ export default function Hero() {
       </div>
 
       {/* Main carousel container */}
-      <div className="relative z-10 w-full max-w-none mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-6">
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg text-gray-200 mb-6"
-          >
-            Discover our handpicked collection of premium products
-          </motion.p>
-        </div>
-
+      <div className="relative z-10 w-full px-4 sm:px-8 lg:px-50">
         {/* Carousel */}
-        <div className="relative">
-          {/* Reduced height container */}
-          <div className="min-h-[300px] flex items-center justify-center">
+        <div className="relative w-full max-w-7xl mx-auto">
+          {/* Carousel container perfectly centered */}
+          <div className="w-full">
             <AnimatePresence mode="wait">
               {featuredProducts.length > 0 && (
                 <motion.div
@@ -161,7 +150,7 @@ export default function Hero() {
             </AnimatePresence>
           </div>
 
-          {/* Enhanced Navigation buttons */}
+          {/* Enhanced Navigation buttons - positioned relative to the centered content */}
           <button
             onClick={prevSlide}
             className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 p-3 rounded-full glass border border-white/20 text-white hover:bg-white/20 hover:scale-110 transition-all duration-300 z-20 shadow-2xl"
@@ -174,21 +163,6 @@ export default function Hero() {
           >
             <ChevronRight className="h-6 w-6" />
           </button>
-
-          {/* Enhanced Dots indicator */}
-          <div className="flex justify-center space-x-3 mt-6">
-            {featuredProducts.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 hover:scale-125 ${
-                  index === currentIndex
-                    ? "bg-white scale-125 shadow-lg"
-                    : "bg-white/50 hover:bg-white/70"
-                }`}
-              />
-            ))}
-          </div>
         </div>
       </div>
     </section>

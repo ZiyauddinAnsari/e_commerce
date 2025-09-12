@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Star, ShoppingCart, Heart } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 const featuredProducts = [
   {
@@ -184,13 +185,15 @@ export default function FeaturedProducts() {
         transition={{ duration: 0.8, delay: 0.4 }}
         className="text-center mt-12"
       >
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="px-8 py-4 border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white rounded-xl font-semibold transition-all duration-300"
-        >
-          View All Products
-        </motion.button>
+        <Link href="/products">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-8 py-4 border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white rounded-xl font-semibold transition-all duration-300"
+          >
+            View All Products
+          </motion.button>
+        </Link>
       </motion.div>
     </section>
   );
