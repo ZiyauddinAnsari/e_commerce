@@ -6,6 +6,9 @@
 .pnp.js
 .yarn/install-state.gz
 
+# dist
+/dist
+
 # testing
 /coverage
 
@@ -38,6 +41,8 @@ next-env.d.ts
 # IDE files
 .vscode/
 .idea/
+
+
 
 # OS generated files
 Thumbs.db

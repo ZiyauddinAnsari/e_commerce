@@ -1,7 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { X, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { FilterOptions, Product } from "@/types";
 import { formatCurrency } from "@/utils/format";
 
@@ -22,7 +21,7 @@ export default function ProductFilters({
   const categories = Array.from(new Set(products.map((p) => p.category)));
   const brands = Array.from(new Set(products.map((p) => p.brand)));
   const colors = Array.from(new Set(products.flatMap((p) => p.colors || [])));
-  const sizes = Array.from(new Set(products.flatMap((p) => p.sizes || [])));
+  // const sizes = Array.from(new Set(products.flatMap((p) => p.sizes || [])));
 
   // Price range
   const prices = products.map((p) => p.price);

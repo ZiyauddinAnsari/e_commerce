@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Filter, Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { getProducts } from "@/data/products";
 import { useProductFilters } from "@/hooks/useProductFilters";
-import { useDebounce } from "@/hooks/useDebounce";
+// import { useDebounce } from "@/hooks/useDebounce";
 import { Product } from "@/types";
 import ProductCard from "@/components/product/ProductCard";
 import ProductFilters from "@/components/product/ProductFilters";
@@ -26,10 +26,10 @@ const ProductsPage: React.FC = () => {
     filters,
     updateFilter,
     clearFilters,
-    resultCount,
+    // resultCount,
   } = useProductFilters(products);
 
-  const debouncedSearch = useDebounce(searchQuery, 300);
+  // const debouncedSearch = useDebounce(searchQuery, 300);
 
   // Pagination logic
   const paginatedProducts = useMemo(() => {
