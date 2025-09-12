@@ -1,10 +1,12 @@
 import React from "react";
+import Categories from "../components/sections/Categories";
 
 const CategoriesPage: React.FC = () => {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Categories</h1>
-      <p>Categories page content will be implemented here.</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
+      <main className="pt-16">
+        <Categories />
+      </main>
     </div>
   );
 };
