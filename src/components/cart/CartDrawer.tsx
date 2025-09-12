@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { X, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
-import Image from "next/image";
-import Link from "next/link";
+// Image component replaced with regular img
+import { Link } from "react-router-dom";
 import { formatCurrency } from "@/utils/format";
 
 export default function CartDrawer() {
@@ -58,7 +58,7 @@ export default function CartDrawer() {
               <p className="text-gray-500 dark:text-gray-400 mb-6">
                 Add some products to get started
               </p>
-              <Link href="/products">
+              <Link to="/products">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -82,11 +82,10 @@ export default function CartDrawer() {
                 >
                   {/* Product Image */}
                   <div className="relative w-16 h-16 rounded-lg overflow-hidden">
-                    <Image
+                    <img
                       src={item.product.images[0]}
                       alt={item.product.name}
-                      fill
-                      className="object-cover"
+                      className="w-full h-full object-cover"
                     />
                   </div>
 
@@ -155,7 +154,7 @@ export default function CartDrawer() {
 
             {/* Checkout Button */}
             <Link
-              href={isAuthenticated ? "/checkout" : "/auth?redirect=/checkout"}
+              to={isAuthenticated ? "/checkout" : "/auth?redirect=/checkout"}
             >
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -171,7 +170,7 @@ export default function CartDrawer() {
             </Link>
 
             {/* Continue Shopping */}
-            <Link href="/products">
+            <Link to="/products">
               <button
                 onClick={toggleCart}
                 className="w-full text-gray-600 dark:text-gray-400 py-2 text-center hover:text-gray-900 dark:hover:text-white transition-colors"

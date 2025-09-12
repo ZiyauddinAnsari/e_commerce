@@ -1,13 +1,11 @@
-"use client";
-
+import React from "react";
 import { motion } from "framer-motion";
 import { Star, ShoppingCart, Heart, Eye, Share2 } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { Product } from "@/types";
 import { formatCurrency } from "@/utils/format";
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 interface ProductCardProps {
   product: Product;
@@ -65,15 +63,13 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       whileHover={{ y: -8 }}
       className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700"
     >
-      <Link href={`/products/${product.id}`}>
+      <Link to={`/products/${product.id}`}>
         {/* Product Image */}
         <div className="relative aspect-square overflow-hidden">
-          <Image
+          <img
             src={product.images[0]}
             alt={product.name}
-            fill
-            className="object-cover group-hover:scale-110 transition-transform duration-500"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
 
           {/* Badges */}

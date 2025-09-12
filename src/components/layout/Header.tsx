@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -15,8 +13,7 @@ import {
   Package,
   LogOut,
 } from "lucide-react";
-import Link from "next/link";
-import { useTheme } from "next-themes";
+import { Link } from "react-router-dom";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { useAuthStore } from "@/store/authStore";
@@ -26,26 +23,30 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const isHydrated = useHydration();
   const { itemCount, toggleCart } = useCartStore();
   const { itemCount: wishlistCount, toggleWishlist } = useWishlistStore();
   const { user, isAuthenticated, logout } = useAuthStore();
 
   const navigation = [
-    { name: "Home", href: "/" },
-    { name: "Products", href: "/products" },
-    { name: "Categories", href: "/categories" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
+    { name: "Home", to: "/" },
+    { name: "Products", to: "/products" },
+    { name: "Categories", to: "/categories" },
+    { name: "About", to: "/about" },
+    { name: "Contact", to: "/contact" },
   ];
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
 
   return (
     <header className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/20 shadow-sm">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-xl"
@@ -62,7 +63,7 @@ export default function Header() {
             {navigation.map((item) => (
               <Link
                 key={item.name}
-                href={item.href}
+                to={item.to}
                 className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
               >
                 {item.name}
@@ -86,7 +87,7 @@ export default function Header() {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              onClick={toggleTheme}
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
               {theme === "dark" ? (
@@ -164,7 +165,7 @@ export default function Header() {
                       className="absolute right-0 mt-2 w-48 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-xl shadow-xl border border-white/20 dark:border-gray-700/30 py-2 z-50"
                     >
                       <Link
-                        href="/account"
+                        to="/account"
                         className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
@@ -172,7 +173,7 @@ export default function Header() {
                         <span>My Account</span>
                       </Link>
                       <Link
-                        href="/account?tab=orders"
+                        to="/account?tab=orders"
                         className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
@@ -180,7 +181,7 @@ export default function Header() {
                         <span>Orders</span>
                       </Link>
                       <Link
-                        href="/account?tab=wishlist"
+                        to="/account?tab=wishlist"
                         className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
@@ -209,7 +210,7 @@ export default function Header() {
               </div>
             ) : (
               isHydrated && (
-                <Link href="/auth">
+                <Link to="/auth">
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
@@ -271,7 +272,7 @@ export default function Header() {
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
-                    href={item.href}
+                    to={item.to}
                     className="block text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
                     onClick={() => setIsMenuOpen(false)}
                   >

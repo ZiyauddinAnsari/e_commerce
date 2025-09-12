@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import {
   ShoppingCart,
   Facebook,
@@ -102,7 +102,7 @@ export default function Footer() {
             transition={{ duration: 0.8 }}
             className="lg:col-span-1"
           >
-            <Link href="/" className="flex items-center space-x-2 mb-6">
+            <Link to="/" className="flex items-center space-x-2 mb-6">
               <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-xl">
                 <ShoppingCart className="h-6 w-6 text-white" />
               </div>
@@ -140,7 +140,7 @@ export default function Footer() {
               {quickLinks.map((link) => (
                 <li key={link.name}>
                   <Link
-                    href={link.href}
+                    to={link.href}
                     className="text-gray-400 hover:text-white transition-colors duration-200"
                   >
                     {link.name}
@@ -162,7 +162,7 @@ export default function Footer() {
               {categories.map((category) => (
                 <li key={category.name}>
                   <Link
-                    href={category.href}
+                    to={category.href}
                     className="text-gray-400 hover:text-white transition-colors duration-200"
                   >
                     {category.name}
@@ -213,19 +213,16 @@ export default function Footer() {
             </div>
             <div className="flex items-center space-x-6 text-sm text-gray-400">
               <Link
-                href="/privacy"
+                to="/privacy"
                 className="hover:text-white transition-colors"
               >
                 Privacy Policy
               </Link>
-              <Link
-                href="/terms"
-                className="hover:text-white transition-colors"
-              >
+              <Link to="/terms" className="hover:text-white transition-colors">
                 Terms of Service
               </Link>
               <Link
-                href="/cookies"
+                to="/cookies"
                 className="hover:text-white transition-colors"
               >
                 Cookie Policy

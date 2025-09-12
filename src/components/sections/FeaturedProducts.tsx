@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Star, ShoppingCart, Heart } from "lucide-react";
-import Image from "next/image";
+// Image component replaced with regular img
 
 const featuredProducts = [
   {
@@ -107,11 +107,10 @@ export default function FeaturedProducts() {
 
               {/* Product Image */}
               <div className="relative overflow-hidden aspect-square">
-                <Image
+                <img
                   src={product.image}
                   alt={product.name}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
               </div>

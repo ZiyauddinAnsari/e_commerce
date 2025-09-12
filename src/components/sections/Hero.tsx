@@ -8,8 +8,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+// Image component replaced with regular img
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getProducts } from "@/data/products";
 import { Product } from "@/types";
@@ -108,7 +108,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden pt-20">
+    <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden py-20">
       {/* Animated background */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800">
         <div className="absolute inset-0 bg-black/20" />
@@ -118,14 +118,14 @@ export default function Hero() {
       {/* Main carousel container */}
       <div className="relative z-10 w-full max-w-none mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-6">
-          <motion.p
+          {/* <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-lg text-gray-200 mb-6"
           >
             Discover our handpicked collection of premium products
-          </motion.p>
+          </motion.p> */}
         </div>
 
         {/* Carousel */}
@@ -175,8 +175,8 @@ export default function Hero() {
             <ChevronRight className="h-6 w-6" />
           </button>
 
-          {/* Enhanced Dots indicator */}
-          <div className="flex justify-center space-x-3 mt-6">
+          {/* Enhanced Dots indicator - Hidden */}
+          {/* <div className="flex justify-center space-x-3 mt-6">
             {featuredProducts.map((_, index) => (
               <button
                 key={index}
@@ -188,7 +188,7 @@ export default function Hero() {
                 }`}
               />
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
     </section>
@@ -210,18 +210,16 @@ function ProductSlide({
   isInWishlist,
 }: ProductSlideProps) {
   return (
-    <Link href={`/products/${product.id}`} className="block group">
+    <Link to={`/products/${product.id}`} className="block group">
       <div className="glass rounded-2xl p-6 md:p-8 backdrop-blur-md border border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 cursor-pointer">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           {/* Product Image */}
           <div className="relative">
             <div className="relative aspect-square rounded-xl overflow-hidden bg-white/10 shadow-2xl max-h-[250px]">
-              <Image
+              <img
                 src={product.images[0]}
                 alt={product.name}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-300"
-                sizes="(max-width: 768px) 100vw, 40vw"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
               />
               {product.discount && (
                 <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">

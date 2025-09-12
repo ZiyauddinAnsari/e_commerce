@@ -9,7 +9,7 @@ import {
   Camera,
   Gamepad2,
 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 const categories = [
   {
@@ -88,7 +88,7 @@ export default function Categories() {
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: index * 0.1 }}
             >
-              <Link href={category.href}>
+              <Link to={category.href}>
                 <motion.div
                   whileHover={{ scale: 1.05, y: -5 }}
                   whileTap={{ scale: 0.95 }}
