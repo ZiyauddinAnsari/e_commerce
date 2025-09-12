@@ -11,11 +11,11 @@ import {
 // Image component replaced with regular img
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getProducts } from "@/data/products";
-import { Product } from "@/types";
-import { formatCurrency } from "@/utils/format";
-import { useCartStore } from "@/store/cartStore";
-import { useWishlistStore } from "@/store/wishlistStore";
+import { getProducts } from "../../data/products";
+import { Product } from "../../types";
+import { formatCurrency } from "../../utils/format";
+import { useCartStore } from "../../store/cartStore";
+import { useWishlistStore } from "../../store/wishlistStore";
 
 export default function Hero() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);

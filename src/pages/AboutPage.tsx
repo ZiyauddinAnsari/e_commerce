@@ -139,8 +139,8 @@ const AboutPage: React.FC = () => {
               className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-4xl mx-auto mb-12"
             >
               We're more than just an e-commerce platform. We're your trusted
-              partner in discovering amazing products, connecting with brands you
-              love, and creating shopping experiences that inspire.
+              partner in discovering amazing products, connecting with brands
+              you love, and creating shopping experiences that inspire.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -198,8 +198,8 @@ const AboutPage: React.FC = () => {
                 Our Mission
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
-                To democratize commerce by making it easy for anyone, anywhere to
-                discover, connect, and purchase products they love while
+                To democratize commerce by making it easy for anyone, anywhere
+                to discover, connect, and purchase products they love while
                 supporting the brands and creators who make them.
               </p>
               <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
@@ -359,9 +359,7 @@ const AboutPage: React.FC = () => {
                     index % 2 === 0 ? "justify-start" : "justify-end"
                   }`}
                 >
-                  <div
-                    className={`w-1/2 ${index % 2 === 0 ? "pr-8" : "pl-8"}`}
-                  >
+                  <div className={`w-1/2 ${index % 2 === 0 ? "pr-8" : "pl-8"}`}>
                     <div
                       className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/30 p-6 ${
                         index % 2 === 0 ? "text-right" : "text-left"

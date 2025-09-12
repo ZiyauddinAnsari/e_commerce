@@ -19,8 +19,12 @@ import { useCartStore } from "../store/cartStore";
 import { useWishlistStore } from "../store/wishlistStore";
 import { Product } from "../types";
 import { formatCurrency } from "../utils/format";
+import { useScrollToTop } from "../hooks/useScrollToTop";
 
 const ProductDetailPage: React.FC = () => {
+  // Scroll to top when component mounts
+  useScrollToTop();
+
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,7 +46,7 @@ const ProductDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
-      
+
       try {
         setLoading(true);
         const data = await getProduct(id);
@@ -102,10 +106,7 @@ const ProductDetailPage: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
               Product Not Found
             </h1>
-            <Link
-              to="/products"
-              className="text-blue-600 hover:text-blue-700"
-            >
+            <Link to="/products" className="text-blue-600 hover:text-blue-700">
               Back to Products
             </Link>
           </div>

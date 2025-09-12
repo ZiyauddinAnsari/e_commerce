@@ -2,15 +2,19 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import { getProducts } from "@/data/products";
-import { useProductFilters } from "@/hooks/useProductFilters";
-// import { useDebounce } from "@/hooks/useDebounce";
-import { Product } from "@/types";
-import ProductCard from "@/components/product/ProductCard";
-import ProductFilters from "@/components/product/ProductFilters";
-import ProductPagination from "@/components/product/ProductPagination";
+import { getProducts } from "../data/products";
+import { useProductFilters } from "../hooks/useProductFilters";
+import { useScrollToTop } from "../hooks/useScrollToTop";
+// import { useDebounce } from "../hooks/useDebounce";
+import { Product } from "../types";
+import ProductCard from "../components/product/ProductCard";
+import ProductFilters from "../components/product/ProductFilters";
+import ProductPagination from "../components/product/ProductPagination";
 
 const ProductsPage: React.FC = () => {
+  // Scroll to top when component mounts
+  useScrollToTop();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
