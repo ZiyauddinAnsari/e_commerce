@@ -108,18 +108,17 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative h-[60vh] overflow-hidden flex items-center">
+    <section className="relative h-[60vh] overflow-hidden">
       {/* Animated background */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800">
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute inset-0 bg-hero-pattern opacity-10" />
       </div>
 
-      {/* Main carousel container */}
-      <div className="relative z-10 w-full px-4 sm:px-8 lg:px-50">
-        {/* Carousel */}
-        <div className="relative w-full max-w-7xl mx-auto">
-          {/* Carousel container perfectly centered */}
+      {/* Main carousel container - absolutely centered */}
+      <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-8 lg:px-50">
+        <div className="relative z-10 w-full max-w-7xl">
+          {/* Carousel */}
           <div className="w-full">
             <AnimatePresence mode="wait">
               {featuredProducts.length > 0 && (
@@ -280,9 +279,11 @@ function ProductSlide({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
                   onAddToWishlist();
+                  return false;
                 }}
-                className={`p-3 rounded-lg border-2 transition-all duration-300 ${
+                className={`p-3 rounded-lg border-2 transition-all duration-300 relative z-50 ${
                   isInWishlist
                     ? "bg-red-500 border-red-500 text-white"
                     : "border-white/30 text-white hover:bg-white/10"
