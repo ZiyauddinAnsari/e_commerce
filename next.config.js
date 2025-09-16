@@ -3,6 +3,11 @@ const nextConfig = {
   images: {
     domains: ["images.unsplash.com", "via.placeholder.com"],
   },
+  // For static deployment platforms like Render
+  output: "export",
+  distDir: "dist",
+  trailingSlash: true,
+  skipTrailingSlashRedirect: true,
   async rewrites() {
     return [
       {
