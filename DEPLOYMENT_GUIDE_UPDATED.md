@@ -35,8 +35,9 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_... or pk_live_...
 2. **Service Settings**:
    - **Build Command**: `npm install && npm run build`
    - **Start Command**: `npm start`
-   - **Publish Directory**: `dist`
+   - **Publish Directory**: Leave empty (uses default .next build output)
    - **Node Version**: 18 or higher
+   - **Environment**: Node.js
 
 3. **Environment Variables**:
    - Add all three Stripe environment variables in the Render dashboard
